@@ -1,15 +1,20 @@
-CTF博客爬虫
+BlogSpider
 
 ## 背景介绍
 
-第二天awdp比赛，现写了一个爬虫用来爬去其他ctfer的博客
+用来爬取大佬博客的工具，配置简单，使用方便
 
 ## 使用方法
 
-在ctfer.txt填入对应博客的地址，然后运行main方法
+修改config.py，注释上面写得很清楚，该脚本只能单次博客爬取，每次爬取不同博客时都需要自己指定xpath语句
+另外非单次修改的配置项如path_wkhtmltopdf文件位置需要自己下载工具并指定路径
+
+## 使用实例
+
+![img2.png](images/img2.png)
+![img.png](images/img.png)
 
 ## 注意事项
 
-原理是解析archive页面的所有href，默认使用的是next的selector去匹配下一页的按钮，这里需要按照具体网站的规则去写对应的selector
 有部分网站的图片链接是语雀外链等有防盗功能的会下载不下来图片
 
