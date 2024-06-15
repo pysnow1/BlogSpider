@@ -34,6 +34,6 @@ def process_blog_urls():
 
 if __name__ == '__main__':
     print("[+]开始爬取博客: " + blog_name)
-    archives.get_all_article_links(archives_url)
-
+    if not pdf_mode:
+        archives.get_all_article_links(archives_url)
     process_blog_urls()
