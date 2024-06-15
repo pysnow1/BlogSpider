@@ -1,75 +1,70 @@
+import time
+
 import requests
 from parsel import Selector
+
 from config import *
 
 
-def get_all_article_links(archive_url, blog):
-    """
-    通过归档链接获取博客所有文章的链接列表，包括处理分页情况。
-
-    :param blog:
-    :param archive_url: 归档页面的 URL 链接
-    :return: 所有文章链接的列表
-    """
+def get_all_article_links(archive_url):
     black_list = ["http", "xml", "json", ".css", ".js", ".jpg", ".png", ".gif", ".jpeg", ".ico", "/archives", "cdn",
-                  "/friends", "/about", "/search", "/tags", "/categories", "gallery", "javascript:", "/link"]
+                  "/friends", "/about", "/search","/page", "/tags", "/categories", "gallery", "javascript:", "/link"]
 
-
+    blog_file = open(os.path.join(dir_path, "blogs_url", f"{blog_name}.txt"), "w")
 
     def fetch_page(url):
-        print(f'正在处理页面: {current_url}')
-        # , verify=False
-        response = requests.get(url, proxies=proxy)
-        response.raise_for_status()
-        return response.text
+        try:
+            print(f'正在处理页面: {url}')
+            # , verify=False
+            response = requests.get(url, proxies=proxy, timeout=10)
+            response.raise_for_status()
+            return response.text
+        except requests as e:
+            print(f"{url}页面访问错误")
 
-    def parse_article_links(html):
-
+    def parse_article_links(res_html):
+        print(f"[*]正在获取当前页面所有文章链接")
         result_links = []
-        selector = Selector(html)
-        article_links = selector.css('a::attr(href)').getall()
+        selector = Selector(res_html)
+        all_links = selector.css('a::attr(href)').getall()
+        # 去重
+        all_links = list(set(all_links))
 
-        for link in article_links:
+        for link in all_links:
             if not link or link == "/":
                 continue
             if any(word in link for word in black_list):
                 continue
-            result_links.append(link)
+            print(f"[+]{blog_name}.txt写入link: {link}")
+            blog_file.write(link + "\n")
 
         # 二次过滤
         # result_links = [link for link in result_links if not any(word in link for word in black_list)]
 
         return result_links
 
-    def parse_next_page_link(html):
+    def parse_next_page_link(url,html):
         selector = Selector(html)
-        css = 'a.next::attr(href)'
-        if selecter:
-            css = selecter
-            print("[*]自定义选择器" + css)
+        xpath = select
+        print(f"[*]{url} 使用 {xpath} 选择器")
 
-        next_page_link = selector.xpath('//a[@class="jump-btn"]/@href')[1].get()
-        return next_page_link
+        next_link = selector.xpath(xpath).get()
+        print(next_link)
+        return next_link
 
     current_url = archive_url
-    all_article_links = []
-
     while current_url:
         html = fetch_page(current_url)
-        article_links = parse_article_links(html)
-        all_article_links.extend(article_links)
+        parse_article_links(html)
 
         # 获取下一页链接
-        next_page_link = parse_next_page_link(html)
+        next_page_link = parse_next_page_link(current_url,html)
         if next_page_link:
-
-            current_url = blog + next_page_link
-            print(next_page_link)
+            current_url = blog_url + next_page_link
         else:
-            print(next_page_link)
+            print("[!]获取下一页失败")
+            time.sleep(2)
             current_url = None
 
-    # 去重
-    all_article_links = list(set(all_article_links))
-
-    return all_article_links
+    blog_file.close()
+    return True

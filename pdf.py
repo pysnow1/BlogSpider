@@ -22,14 +22,7 @@ options = {
 
 
 def url_pdf(url, filename):
-    try:
-        if os.path.exists(filename):
-            os.remove(filename)
-        pdfkit.from_url(url, filename, options=options, configuration=config)
-        print('完成 ' + filename)
-    except Exception as e:
-        print("[*]爬取失败" + url)
-
-
-def html_pdf():
-    pass
+    if os.path.exists(filename):
+        os.remove(filename)
+    pdfkit.from_url(url, filename, options=options, configuration=config)
+    print('[*]爬取成功' + filename)
